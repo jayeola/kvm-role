@@ -1,0 +1,134 @@
+---
+# ignore errors. pool is built if pool does not exist
+- name: Get-XML-data-for-iso-image-pool
+  community.libvirt.virt_pool:
+    command: get_xml
+    name: "{{iso_image_pool_name}}_{{item}}"
+  loop:
+    - "debian"
+    - "fedora"
+    - "ubuntu"
+  ignore_errors: true
+  register: iso_image_pool
+  tags: pool
+
+# ignore errors. pool is built if pool does not exist
+- name: Get-XML-data-for-cloud-image-pool
+  community.libvirt.virt_pool:
+    command: get_xml
+    name: "{{cloud_image_pool_name}}_{{item}}"
+  loop:
+    - "debian"
+    - "fedora"
+    - "ubuntu"
+  ignore_errors: true
+  register: cloud_image_pool
+  tags: pool
+
+# ignore errors. pool is built if pool does not exist
+- name: create-pool-for-iso-images
+  community.libvirt.virt_pool:
+    command: define
+    name: "{{iso_image_pool_name}}_{{item}}"
+    xml: '{{ lookup("template", "virt-iso-pool.xml.j2") }}'
+  loop:
+    - "debian"
+    - "fedora"
+    - "ubuntu"
+  when: iso_image_pool is failed
+  tags: pool
+
+# ignore errors. pool is built if pool does not exist
+- name: create-pool-for-cloud-images
+  community.libvirt.virt_pool:
+    command: define
+    name: "{{cloud_image_pool_name}}_{{item}}"
+    xml: '{{ lookup("template", "virt-cloud-pool.xml.j2") }}'
+  loop:
+    - "debian"
+    - "fedora"
+    - "ubuntu"
+  when: cloud_image_pool is failed
+  tags: pool
+
+- name: activate-iso-image-pools
+  community.libvirt.virt_pool:
+    autostart: yes
+    state: active
+    name: "{{iso_image_pool_name}}_{{item}}"
+  loop:
+    - "debian"
+    - "fedora"
+    - "ubuntu"
+  tags: pool
+
+- name: activate-cloud-image-pools
+  community.libvirt.virt_pool:
+    autostart: yes
+    state: active
+    name: "{{cloud_image_pool_name}}_{{item}}"
+  loop:
+    - "debian"
+    - "fedora"
+    - "ubuntu"
+  tags: pool
+
+- name: status-cloud-image-pools
+  community.libvirt.virt_pool:
+    command: status
+    name: "{{cloud_image_pool_name}}_{{item}}"
+  loop:
+    - "debian"
+    - "fedora"
+    - "ubuntu"
+  tags: pool
+
+- name: new-dir-for-kvm-scripts
+  file:
+    name: "{{scripts_dir}}/{{item}}"
+    state: directory
+  loop:
+#   - "cloud-init-scripts"
+    - "anaconda"
+    - "bash"
+  tags: script
+
+- name: new-dir-for-cloud-init-config
+  file:
+    name: "{{cloud_init_config_dir}}"
+    state: directory
+  tags: cloud-init-config
+
+- name: upload-kick-fedora-vm-script
+  template:
+    src: templates/kick-fedora.sh.j2
+    dest: "{{scripts_dir}}/bash/kick-fedora.sh"
+    backup: true
+  tags: script
+
+- name: upload-cloud-init-meta-data
+  template:
+    src: templates/cloud-init/meta-data.yaml.j2
+    dest: "{{cloud_init_config_dir}}/meta-data.yaml"
+    backup: true
+  tags: script
+  
+- name: upload-cloud-init-user-data
+  template:
+    src: templates/cloud-init/user-data.yaml.j2
+    dest: "{{cloud_init_config_dir}}/user-data.yaml"
+    backup: true
+  tags: script
+
+- name: upload-kick-fedora-with-cloud-init-script
+  template:
+    src: templates/kick-fedora-cloud-init.sh.j2
+    dest: "{{scripts_dir}}/bash/kick-fedora-cloud-init.sh"
+    backup: true
+  tags: script,x0
+
+- name: upload-non-root-ssh-key
+  copy:
+    src: files/id_rsa.pub
+    dest: "{{cloud_init_config_dir}}"
+  tags: kvm_ssh_key,ssh,ssh_key

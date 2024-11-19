@@ -1,0 +1,14 @@
+<pool type='dir'>
+  <name>{{cloud_image_pool_name}}_{{item}}</name>
+  <source>
+  </source>
+  <target>
+    <path>{{cloud_image_dir}}/{{item}}</path>
+    <permissions>
+      <mode>0755</mode>
+      <owner>0</owner>
+      <group>0</group>
+      <label>unconfined_u:object_r:usr_t:s0</label>
+    </permissions>
+  </target>
+</pool>

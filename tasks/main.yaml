@@ -1,0 +1,57 @@
+---
+- name: set-hostname
+  hostname:
+    name:  "{{inventory_hostname}}"
+  tags: hostname,setup
+
+# confirm OS of host to determine the OS package for the system
+- name: detect-os-family
+  import_tasks: detect-os.yaml
+  tags: detect_os,setup,os
+
+# install packages from DNF repo for Fedora based systems
+- import_tasks: detect-fedora.yaml
+  when: out_fedora is succeeded
+  tags: dnf,fedora,setup
+
+# install packages from yum repo for CentOS based systems
+- import_tasks: detect-yum.yaml
+  when: out_centos is succeeded
+  tags: centos,setup,yum
+
+# install packages from repo for APT, (Debian, Ubuntu ) based systems
+- import_tasks: detect-apt.yaml
+  when: out_debian is succeeded
+  tags: apt,dpkg,setup
+
+# download iso images for Fedora-based systems
+- name: download-fedora-iso-images
+  import_tasks: download-fedora-iso-images.yaml
+  tags: iso,download,fedora,fedora_iso
+
+- name: download-ubuntu-iso-images
+  import_tasks: download-ubuntu-iso-images.yaml
+  tags: iso,download,ubuntu_iso
+
+- name: download-debian-iso-images
+  import_tasks: download-debian-iso-images.yaml
+  tags: iso,download,debian_iso
+
+- name: download-cloud-images
+  import_tasks: download-cloud-images.yaml
+  tags: images,download,cloud_images
+
+- name: manage-kvm-vms
+  import_tasks: manage-kvms.yaml
+  tags: kvm,boxes,vms
+
+- name: enable-services
+  service:
+    name: "{{item}}"
+    state: started
+    enabled: yes
+  with_items:
+    - libvirtd
+    - cockpit.socket
+  tags: srv,setup,service
+

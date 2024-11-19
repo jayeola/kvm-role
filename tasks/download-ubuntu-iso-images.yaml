@@ -1,0 +1,41 @@
+---
+# set name for iso dir. will be using this a lot
+- name: define-ubuntu-iso-dir
+  ansible.builtin.set_fact:
+    ubuntu_iso_dir: "{{iso_image_dir}}/ubuntu"
+
+- name: create-dirs-ubuntu-iso-images
+  ansible.builtin.file:
+    path: "{{ubuntu_iso_dir}}"
+    state: directory
+  tags: dir, iso_dir
+
+- name: check-ubuntu-checksum-file-on-local
+  ansible.builtin.file:
+    path: "{{ubuntu_iso_dir}}/{{ubuntu24.checksum_file}}"
+    state: file
+  ignore_errors: true
+  register: ubuntu_checksum
+  tags: ubuntu24,checksum
+
+- name: get-ubuntu-checksum-file-from-net
+  ansible.builtin.get_url:
+    url: "{{ubuntu24.iso_server_checksum_url}}"
+    dest: "{{ubuntu_iso_dir}}"
+  when: ubuntu_checksum is failed
+  tags: ubuntu24_checksum,checksum
+
+- name: test-ubuntu-iso-images-on-local
+  ansible.builtin.file:
+    path: "{{ubuntu_iso_dir}}/{{ubuntu24.iso_server}}"
+  ignore_errors: True
+  register: out_iso
+  tags: get_iso
+
+- name: get-ubuntu-live-server-iso
+  ansible.builtin.get_url:
+    url: "{{ubuntu24.mirror}}/{{ubuntu24.iso_server}}"
+    dest: "{{ubuntu_iso_dir}}/{{ubuntu24.iso_server}}"
+    checksum: "sha256:{{ubuntu24.iso_server_checksum}}"
+  when: out_iso is failed
+  tags: get_iso

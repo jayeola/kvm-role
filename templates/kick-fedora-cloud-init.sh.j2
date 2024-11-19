@@ -1,0 +1,86 @@
+#!/bin/bash
+
+clear
+
+# dump list to STDOUT. help user to confirm machine does not exist already
+echo "==== existing vms ===="
+virsh list --all 
+
+# chill for a bit and wait for the user
+sleep 4
+
+# get name for new vm from user
+read -p "name " MY_NAME
+
+# get RAM for new vm
+read -p "RAM " MY_RAM
+
+# confirm that vm does not exist
+if virsh list --all | grep  ${MY_NAME}
+then
+    echo ""
+    echo "vm with name ${MY_NAME} exists!"
+    echo "quit!"
+    exit 1
+else
+    echo "vm with name ${MY_NAME} doesn't exist"
+    echo "continue..."
+fi
+
+# define dir for new kvm cloud image
+CLOUD_IMAGE_DIR="{{cloud_image_dir}}/fedora"
+
+# define fedora cloud/generic kvm __source__ qcow2 image
+CLOUD_IMAGE_SERVER_GENERIC_FILE="{{cloud_image_dir}}/fedora/{{fedora40.cloud_image_server_generic_file}}"
+
+TARGET_FILE="${CLOUD_IMAGE_DIR}/${MY_NAME}.qcow2"
+
+# confirm file does not exist.  quit when file already exists
+if test -f "${TARGET_FILE}"
+then
+    echo "${TARGET_FILE} exists."
+    # quit if file exist already
+    exit 1
+else
+    echo "${TARGET_FILE} does not exist."
+    echo "continue..."
+    sleep 2
+fi
+
+# create new disk for new vm
+echo ""
+echo "creating new disk for new vm"
+cp ${CLOUD_IMAGE_SERVER_GENERIC_FILE} ${CLOUD_IMAGE_DIR}/${MY_NAME}.qcow2
+
+# bigger disk for new vm
+qemu-img resize ${CLOUD_IMAGE_DIR}/${MY_NAME}.qcow2 +50G
+
+# dump info about new disk
+echo ""
+echo "new disk info...."
+qemu-img info ${CLOUD_IMAGE_DIR}/${MY_NAME}.qcow2 
+
+# update hostname for cloud-init meta-data script/config
+sed -i "s/changeme/${MY_NAME}/g" {{scripts_dir}}/cloud-init-scripts/meta-data.yaml
+
+# confirm script at quit.
+cat -n {{scripts_dir}}/cloud-init-scripts/meta-data.yaml
+
+# DEBUG: defaul user for fedora is __fedora__
+virt-install  --name ${MY_NAME} \
+  --memory ${MY_RAM}  --cpu host --vcpus 2 --graphics none\
+  --os-variant fedora40 \
+  --import  \
+  --disk ${CLOUD_IMAGE_DIR}/${MY_NAME}.qcow2,format=qcow2,bus=virtio \
+  --network type=direct,source=enp0s25,source_mode=bridge,model=virtio \
+  --network bridge=virbr0,model=virtio  \
+  --cloud-init user-data={{scripts_dir}}/cloud-init-scripts/user-data.yaml \
+  --cloud-init meta-data={{scripts_dir}}/cloud-init-scripts/meta-data.yaml \
+  --cloud-init clouduser-ssh-key={{iso_image_dir}}/id_rsa.pub \
+  --cloud-init root-password-generate=on \
+  --cloud-init root-ssh-key={{iso_image_dir}}/id_rsa.pub 
+
+sed -i "s/${MY_NAME}/changeme/g" {{scripts_dir}}/cloud-init-scripts/meta-data.yaml
+
+virsh autostart ${MY_NAME}
+

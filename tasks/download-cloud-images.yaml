@@ -1,0 +1,82 @@
+---
+# DEBUG: download-cloud-images
+
+- name: create-dir-for-cloud-images
+  ansible.builtin.file:
+    path: "{{cloud_image_dir}}/{{item}}"
+    state: directory
+  loop:
+    - "debian"
+    - "fedora"
+    - "ubuntu"
+  tags: dir, cloud_dir
+
+# set name for cloud dir. will be using this a lot
+- name: define-fedora-iso-dir
+  ansible.builtin.set_fact:
+    fedora_cloud_dir: "{{cloud_image_dir}}/fedora"
+
+- name: check-fedora-cloud_checksum-kvm-file-on-local
+  ansible.builtin.file:
+    path: "{{fedora_cloud_dir}}/{{fedora40.cloud_image_server_kvm_checksum_file}}"
+    state: file
+  ignore_errors: true
+  register: fedora_kvm_checksum
+  tags: fedora40_checksum,checksum
+
+- name: get-fedora-checksum-kvm-file-from-net
+  ansible.builtin.get_url:
+    url: "{{fedora40.cloud_image_server_kvm_checksum_url}}"
+    dest: "{{fedora_cloud_dir}}"
+  when: fedora_kvm_checksum is failed
+  tags: fedora40_checksum,checksum
+
+- name: test-fedora-cloud-kvm-images-on-local
+  ansible.builtin.file:
+    path: "{{fedora_cloud_dir}}/{{item}}"
+  ignore_errors: True
+  loop:
+    - "{{fedora40.cloud_image_server_kvm_file}}"
+  register: out_kvm_cloud
+  tags: get_kvm_cloud
+
+- name: get-fedora-kvm-cloud-image
+  ansible.builtin.get_url:
+    url: "{{fedora40.cloud_image_server_kvm_url}}"
+    dest: "{{fedora_cloud_dir}}/{{fedora40.cloud_image_server_kvm_file}}"
+    checksum: "sha256:{{fedora40.cloud_image_server_kvm_checksum}}"
+  when: out_kvm_cloud is failed
+  tags: get_cloud
+###
+
+- name: check-fedora-cloud_checksum-generic-file-on-local
+  ansible.builtin.file:
+    path: "{{fedora_cloud_dir}}/{{fedora40.cloud_image_server_generic_checksum_file}}"
+    state: file
+  ignore_errors: true
+  register: fedora_generic_checksum
+  tags: fedora40_checksum,checksum
+
+- name: get-fedora-checksum-generic-file-from-net
+  ansible.builtin.get_url:
+    url: "{{fedora40.cloud_image_server_genric_checksum_url}}"
+    dest: "{{fedora_cloud_dir}}"
+  when: fedora_generic_checksum is failed
+  tags: fedora40_checksum,checksum
+
+- name: test-fedora-cloud-generic-images-on-local
+  ansible.builtin.file:
+    path: "{{fedora_cloud_dir}}/{{item}}"
+  ignore_errors: True
+  loop:
+    - "{{fedora40.cloud_image_server_generic_file}}"
+  register: out_generic_cloud
+  tags: get_generic_cloud
+
+- name: get-fedora-kvm-cloud-image
+  ansible.builtin.get_url:
+    url: "{{fedora40.cloud_image_server_generic_url}}"
+    dest: "{{fedora_cloud_dir}}/{{fedora40.cloud_image_server_generic_file}}"
+    checksum: "sha256:{{fedora40.cloud_image_server_generic_checksum}}"
+  when: out_generic_cloud is failed
+  tags: get_cloud

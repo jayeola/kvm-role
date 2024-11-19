@@ -1,0 +1,14 @@
+#!/bin/bash
+read -p "name " name_
+echo ${name_}
+
+virt-install --virt-type kvm \
+--name cx-${name_} \
+--location {{images_dir}}/centos/7/os/x86_64 \
+--os-variant centos7.0 \
+--disk size=10 \
+--memory 2048 \
+--vcpus 4 \
+--graphics none \
+--console pty,target_type=serial \
+--extra-args "console=ttyS0 ks=file:/root/centos.ks.cfg"

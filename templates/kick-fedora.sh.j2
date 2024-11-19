@@ -1,0 +1,21 @@
+#!/bin/bash
+
+read -p "name " name_
+
+/usr/bin/virt-install \
+  --virt-type kvm \
+  --connect qemu:///system \
+  --name $name_ \
+  --memory 2048 \
+  --disk path={{kvm_image_dir}}/$name_,size=50 \
+  --vcpus 2 \
+  --location {{iso_image_dir}}/fedora/{{fedora40.server_dvd}} \
+  --autoconsole text \
+  --extra-args 'console=ttyS0,115200n8 serial' \
+  --network bridge=virbr0 \
+  --graphics none \
+  --console pty,target_type=serial \
+  --check all=on
+
+# virsh autostart $name_
+# --extra-args 'console=ttyS0,115200n8 serial' \

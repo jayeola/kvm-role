@@ -1,0 +1,41 @@
+---
+# set name for iso dir. will be using this a lot
+- name: define-debian-iso-dir
+  ansible.builtin.set_fact:
+    debian_iso_dir: "{{iso_image_dir}}/debian"
+
+- name: create-dirs-for-debian-iso-images
+  file:
+    path: "{{debian_iso_dir}}"
+    state: directory
+  tags: dir, iso_dir
+
+- name: check-debian-checksum-file-on-local
+  file:
+    path: "{{debian_iso_dir}}/{{debian12.checksum_file}}"
+    state: file
+  ignore_errors: true
+  register: debian_checksum
+  tags: debian12_checksum,checksum
+
+- name: get-debian-checksum-file-from-net
+  get_url:
+    url: "{{debian12.checksum_url}}"
+    dest: "{{debian_iso_dir}}"
+  when: debian_checksum is failed
+  tags: debian12_checksum,checksum
+
+- name: test-debian-dvd-iso-images-on-local
+  file:
+    path: "{{debian_iso_dir}}/{{debian12.iso_dvd}}"
+  ignore_errors: True
+  register: out_iso
+  tags: get_iso
+
+- name: get-debian-dvd-iso
+  get_url:
+    url: "{{debian12.iso_dvd_mirror}}/{{debian12.iso_dvd}}"
+    dest: "{{debian_iso_dir}}/{{debian12.iso_dvd}}"
+    checksum: "sha256:{{debian12.iso_dvd_sha256sums}}"
+  when: out_iso is failed
+  tags: get_iso

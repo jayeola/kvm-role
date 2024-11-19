@@ -1,0 +1,92 @@
+---
+### original
+# image_dir: /var/lib/libvirt/images
+### new dir
+kvm_image_dir: /var/lib/libvirt/images
+cloud_image_dir: /opt/projects/kvm/cloud-images
+iso_image_dir: /opt/projects/kvm/iso_images
+iso_image_pool_name: iso_images
+cloud_image_pool_name: cloud_images
+scripts_dir: /opt/projects/kvm/scripts
+cloud_init_config_dir: /opt/projects/kvm/cloud-init-config
+
+vms:
+  - "fedora40-t"
+  - "fx-00"
+  - "vm-test-00-clone"
+  - "f100"
+  - "vm-test-00"
+
+fedora40:
+    osname: fedora40
+    mirror: http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/linux/releases/40/Server/x86_64/iso/
+    kickstart: "fedora-server-40-anaconda-ks.cfg"
+    server_dvd: "Fedora-Server-dvd-x86_64-40-1.14.iso" 
+    server_dvd_checksum: "32d9ab1798fc8106a0b06e873bdcd83a3efea8412c9401dfe4097347ed0cfc65"
+    server_netinstall_iso: "Fedora-Server-netinst-x86_64-40-1.14.iso"
+    server_netinstall_iso_checksum: "1b4f163c55aa9b35bb08f3d465534aa68899a4984b8ba8976b1e7b28297b61fe"
+
+    # ____workstation____
+    workstation_live_iso: "Fedora-Workstation-Live-x86_64-40-1.14.iso"
+    workstation_live_iso_checksum: "changeme"
+    checksum_url: "http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/linux/releases/40/Server/x86_64/iso/Fedora-Server-40-1.14-x86_64-CHECKSUM"
+    checksum_file: "Fedora-Server-40-1.14-x86_64-CHECKSUM"
+
+    # ____cloud images____
+    cloud_image_server_qcow2_url: "http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/linux/releases/40/Server/x86_64/images/Fedora-Server-KVM-40-1.14.x86_64.qcow2"
+
+    # ____kvm____
+    cloud_image_server_kvm_checksum: "a16ba1f26aaf010f62bd94e9f772079353e4bbcffe2c8078f1dfab8aeb848851"
+    cloud_image_server_kvm_checksum_file: "Fedora-Server-40-1.14-x86_64-CHECKSUM"
+    cloud_image_server_kvm_checksum_url: "http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/linux/releases/40/Server/x86_64/images/Fedora-Server-40-1.14-x86_64-CHECKSUM"
+    cloud_image_server_kvm_url: "http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/linux/releases/40/Server/x86_64/images/Fedora-Server-KVM-40-1.14.x86_64.qcow2"
+    cloud_image_server_kvm_file: "Fedora-Server-KVM-40-1.14.x86_64.qcow2"
+
+    # ____generic____
+    cloud_image_server_generic_url: "http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2"
+    cloud_image_server_generic_file: "Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2"
+    cloud_image_server_genric_checksum_url: "http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-40-1.14-x86_64-CHECKSUM"
+    cloud_image_server_generic_checksum_file: "Fedora-Cloud-40-1.14-x86_64-CHECKSUM"
+    cloud_image_server_generic_checksum: "ac58f3c35b73272d5986fa6d3bc44fd246b45df4c334e99a07b3bbd00684adee"
+    
+    # ____amazon____
+    cloud_image_server_amazon_url: "http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-AmazonEC2.x86_64-40-1.14.raw.xz"
+    cloud_image_server_amazon_file: "Fedora-Cloud-Base-AmazonEC2.x86_64-40-1.14.raw.xz"
+    cloud_image_server_amazon_checksum_url: "http://mirror.ox.ac.uk/sites/download.fedora.redhat.com/pub/fedora/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-40-1.14-x86_64-CHECKSUM"
+    cloud_image_server_amazon_checksum_file: "Fedora-Cloud-40-1.14-x86_64-CHECKSUM"
+    cloud_image_server_amazon_checksum: "42c682c2c77ead24ea6af989d1fed28d93e2134c85b016674e109ee6f6699446"
+
+
+# list of debian http/ftp download mirrors 
+# https://www.debian.org/CD/http-ftp/#mirrors
+
+debian12:
+    osname: debian12
+    iso_dvd_mirror: "http://mirrorservice.org/sites/cdimage.debian.org/debian-cd/current/amd64/iso-dvd/"
+    iso_cd_mirror: "http://mirrorservice.org/sites/cdimage.debian.org/debian-cd/current/amd64/iso-cd/"
+    iso_dvd: "debian-12.7.0-amd64-DVD-1.iso"
+    iso_cd_sha256sums: "changeme"
+    iso_dvd_sha256sums: "a29f31d0848439b6705686c2302f671149e68593a8670a5ef130862b1952d89f"
+    iso_cd_netinst: "debian-12.7.0-amd64-netinst.iso"
+    checksum_file: "SHA256SUMS"
+    checksum_url: "http://mirrorservice.org/sites/cdimage.debian.org/debian-cd/current/amd64/iso-dvd/SHA256SUMS"
+
+    # cloud images
+    cloud_image_raw_url: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.raw"
+    cloud_image_raw_file: "debian-12-nocloud-amd64.raw"
+    cloud_image_qcow2_url: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.qcow2"
+
+# list of ubuntu http/ftp download mirrors
+# https://ubuntu.com/download/alternative-downloads
+# http://mirrors.ubuntu.com/GB.txt 
+# __or__ stick with "mirror-service"
+
+ubuntu24: # codename "Noble Numbat"
+    mirror: "http://mirror.ox.ac.uk/sites/releases.ubuntu.com/releases/noble/"
+    iso_server: "ubuntu-24.04.1-live-server-amd64.iso"
+    iso_server_checksum_url: "http://mirror.ox.ac.uk/sites/releases.ubuntu.com/releases/noble/SHA256SUMS"
+    iso_server_checksum: "e240e4b801f7bb68c20d1356b60968ad0c33a41d00d828e74ceb3364a0317be9"
+    checksum_file: "SHA256SUMS"
+
+# cloud images for ubuntu
+# http://mirrorservice.org/sites/cloud-images.ubuntu.com/noble/20240912/

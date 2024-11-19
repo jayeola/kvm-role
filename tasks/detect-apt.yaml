@@ -1,0 +1,21 @@
+---
+# install packages from repo for APT, (Debian, Ubuntu ) based systems
+- name: install-dpkg-packages
+  apt:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - qemu-kvm
+    - libvirt-daemon-system
+    - libvirt-clients
+    - bridge-utils
+    - cockpit
+    - cockpit-system
+    - cockpit-ws
+    - cockpit-packagekit
+    - cockpit-dashboard
+    - libvirt-daemon
+    - libvirt-dbus
+    - libvirt-daemon-driver-qemu
+    - virtinst
+    - virt-manager

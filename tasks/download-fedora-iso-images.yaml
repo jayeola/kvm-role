@@ -1,0 +1,52 @@
+---
+# set name for iso dir. will be using this a lot
+- name: define-fedora-iso-dir
+  ansible.builtin.set_fact:
+    fedora_iso_dir: "{{iso_image_dir}}/fedora"
+
+- name: create-dirs-for-fedora-iso-images
+  ansible.builtin.file:
+    path: "{{fedora_iso_dir}}"
+    state: directory
+  tags: dir, iso_dir
+
+- name: check-fedora-checksum-file-on-local
+  ansible.builtin.file:
+    path: "{{fedora_iso_dir}}/{{fedora40.checksum_file}}"
+    state: file
+  ignore_errors: true
+  register: fedora_checksum
+  tags: fedora40_checksum,checksum
+
+- name: get-fedora-checksum-file-from-net
+  ansible.builtin.get_url:
+    url: "{{fedora40.checksum_url}}"
+    dest: "{{fedora_iso_dir}}"
+  when: fedora_checksum is failed
+  tags: fedora40_checksum,checksum
+
+- name: test-fedora-iso-images-on-local
+  ansible.builtin.file:
+    path: "{{fedora_iso_dir}}/{{item}}"
+  ignore_errors: True
+  with_items:
+   - "{{fedora40.server_netinstall_iso}}"
+   - "{{fedora40.server_dvd}}"
+  register: out_iso
+  tags: get_iso
+
+- name: get-fedora-iso-netinst
+  ansible.builtin.get_url:
+    url: "{{fedora40.mirror}}/{{fedora40.server_netinstall_iso}}"
+    dest: "{{fedora_iso_dir}}/{{fedora40.server_netinstall_iso}}"
+    checksum: "sha256:{{fedora40.server_netinstall_iso_checksum}}"
+  when: out_iso is failed
+  tags: get_iso
+
+- name: get-fedora-iso-dvd
+  ansible.builtin.get_url:
+    url: "{{fedora40.mirror}}/{{fedora40.server_dvd}}"
+    dest: "{{fedora_iso_dir}}{{fedora40.server_dvd}}"
+    checksum: "sha256:{{fedora40.server_dvd_checksum}}"
+  when: out_iso is failed
+  tags: get_iso

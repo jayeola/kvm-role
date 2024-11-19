@@ -1,0 +1,23 @@
+---
+# install packages from DNF repo for Fedora based systems
+- name: update dnf packages, cache
+  dnf:
+    update_cache: yes
+    name: "*"
+    state: latest
+
+- name: install-dnf-packages
+  dnf:
+    name: "{{item}}"
+    state: latest
+  loop:
+    - qemu-kvm
+    - libvirt
+    - libvirt-python3
+    - libguestfs-tools
+    - virt-install
+#   - virt-manager
+    - cockpit-bridge
+    - cockpit-ws
+    - cockpit-machines
+    - libguestfs-tools-c

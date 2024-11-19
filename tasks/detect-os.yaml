@@ -1,0 +1,20 @@
+---
+# confirm OS of host to determine the OS package for the system
+- name: detect-fedora
+  command: "grep 'ID=fedora'  /etc/os-release "
+  ignore_errors: true
+  register: out_fedora
+  tags: fedora
+
+- name: detect-centos
+  command: "grep 'ID=centos'  /etc/os-release "
+  ignore_errors: true
+  register: out_centos
+  tags: centos
+
+- name: detect-debian-family
+  command: "grep 'ID=debian'  /etc/os-release "
+  ignore_errors: true
+  register: out_debian
+  tags: debian
+

@@ -1,0 +1,35 @@
+---
+# install packages from yum repo for CentOS based systems
+- debug:
+    msg: "I am a centos box"
+
+- name: epel-release
+  vars:
+#   ansible_python_interpreter: python2
+  yum:
+    name: epel-release
+    state: present
+
+- name: update packages, cache, auto clean
+  vars:
+#   ansible_python_interpreter: python2
+  yum:
+    update_cache: yes
+    name: "*"
+    state: latest
+
+- name: install-yum-packages
+  vars:
+#    ansible_python_interpreter: python2
+  yum:
+    name: "{{item}}"
+    state: latest
+  loop:
+    - qemu-kvm
+    - libvirt
+    - libvirt-python
+    - libguestfs
+    - libguestfs-tools
+    - libguestfs-tools-c
+    - virt-install
+    - virt-manager
