@@ -4,7 +4,7 @@
 ### new dir
 kvm_image_dir: /var/lib/libvirt/images
 cloud_image_dir: /opt/projects/kvm/cloud-images
-iso_image_dir: /opt/projects/kvm/iso_images
+iso_image_dir: /opt/projects/kvm/iso-images
 iso_image_pool_name: iso_images
 cloud_image_pool_name: cloud_images
 scripts_dir: /opt/projects/kvm/scripts

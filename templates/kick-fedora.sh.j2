@@ -1,21 +1,52 @@
 #!/bin/bash
+# ==== {{ansible_managed}} =====
 
-read -p "name " name_
+clear
+
+# dump list to STDOUT. help user to confirm machine does not exist already
+echo "==== existing vms ===="
+virsh list --all 
+
+# chill for a bit and wait for the user
+sleep 4
+
+# get name for new vm from user
+read -p "name " MY_NAME
+
+# get RAM for new vm
+read -p "RAM " MY_RAM
+
+# confirm that vm does not exist
+if virsh list --all | grep  ${MY_NAME}
+then
+    echo ""
+    echo "vm with name ${MY_NAME} exists!"
+    echo "quit!"
+    exit 1
+else
+    echo "vm with name ${MY_NAME} doesn't exist"
+    echo "continue..."
+fi
+
+# --network type=direct,source=enp0s25,source_mode=bridge,model=virtio \
+# --network bridge=virbr0,model=virtio  \
 
 /usr/bin/virt-install \
   --virt-type kvm \
+  --os-variant fedora40 \
   --connect qemu:///system \
-  --name $name_ \
-  --memory 2048 \
-  --disk path={{kvm_image_dir}}/$name_,size=50 \
+  --name ${MY_NAME} \
+  --memory ${MY_RAM} \
+  --disk path={{kvm_image_dir}}/${MY_NAME},size=50 \
   --vcpus 2 \
   --location {{iso_image_dir}}/fedora/{{fedora40.server_dvd}} \
   --autoconsole text \
-  --extra-args 'console=ttyS0,115200n8 serial' \
   --network bridge=virbr0 \
   --graphics none \
   --console pty,target_type=serial \
-  --check all=on
+  --check all=on \
+  --initrd-inject fedora-40-ks.cfg --extra-args "inst.ks=file:/fedora-40-ks.cfg console=tty0 console=ttyS0,115200n8"
 
-# virsh autostart $name_
-# --extra-args 'console=ttyS0,115200n8 serial' \
+virsh autostart ${MY_NAME}
+
+#--extra-args 'console=ttyS0,115200n8 serial' \

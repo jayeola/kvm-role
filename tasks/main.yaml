@@ -5,24 +5,24 @@
   tags: hostname,setup
 
 # confirm OS of host to determine the OS package for the system
-- name: detect-os-family
-  import_tasks: detect-os.yaml
-  tags: detect_os,setup,os
+#- name: detect-os-family
+#  import_tasks: detect-os.yaml
+#  tags: detect_os,setup,os
 
 # install packages from DNF repo for Fedora based systems
 - import_tasks: detect-fedora.yaml
-  when: out_fedora is succeeded
+  when: 'ansible_distribution == "Fedora"'
   tags: dnf,fedora,setup
 
 # install packages from yum repo for CentOS based systems
 - import_tasks: detect-yum.yaml
-  when: out_centos is succeeded
+  when: 'ansible_distribution == "Centos"'
   tags: centos,setup,yum
 
 # install packages from repo for APT, (Debian, Ubuntu ) based systems
-- import_tasks: detect-apt.yaml
-  when: out_debian is succeeded
-  tags: apt,dpkg,setup
+#- import_tasks: detect-apt.yaml
+#  when: out_debian is succeeded
+#  tags: apt,dpkg,setup
 
 # download iso images for Fedora-based systems
 - name: download-fedora-iso-images
