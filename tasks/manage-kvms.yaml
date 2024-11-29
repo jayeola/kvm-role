@@ -99,10 +99,11 @@
     state: directory
   tags: cloud-init-config
 
+# DEBUG: this kvm node will have no swap space. use for k8s nodes
 - name: upload-kick-fedora-vm-script
   template:
-    src: templates/kick-fedora.sh.j2
-    dest: "{{scripts_dir}}/bash/kick-fedora.sh"
+    src: templates/kick-fedora-no-swap.sh.j2
+    dest: "{{scripts_dir}}/bash/kick-fedora-no-swap.sh"
     backup: true
   tags: script
 

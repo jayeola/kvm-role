@@ -41,7 +41,8 @@ fi
   --vcpus 2 \
   --location {{iso_image_dir}}/fedora/{{fedora40.server_dvd}} \
   --autoconsole text \
-  --network bridge=virbr0 \
+  --network type=direct,source=enp0s25,source_mode=bridge,model=virtio \
+  --network bridge=virbr0,model=virtio  \
   --graphics none \
   --console pty,target_type=serial \
   --check all=on \
